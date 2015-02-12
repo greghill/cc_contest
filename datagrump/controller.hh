@@ -12,6 +12,7 @@ private:
 
   bool high_delay;
   bool was_high_delay;
+  uint32_t consecutive_low_delay;
 
 public:
   /* Public interface for the congestion controller */
