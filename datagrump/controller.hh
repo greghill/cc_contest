@@ -10,7 +10,8 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  /* Add member variables here */
+  bool high_delay;
+  bool was_high_delay;
 
 public:
   /* Public interface for the congestion controller */

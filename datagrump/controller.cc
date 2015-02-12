@@ -8,20 +8,17 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
+  , high_delay(false)
+  , was_high_delay(false)
 {}
 
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
-  /* Default: fixed window size of 100 outstanding datagrams */
-  unsigned int the_window_size = 50;
-
-  if ( debug_ ) {
-    cerr << "At time " << timestamp_ms()
-	 << " window size is " << the_window_size << endl;
-  }
-
-  return the_window_size;
+  if (high_delay)// && was_high_delay)
+      return 8;
+  else
+      return 15;
 }
 
 /* A datagram was sent */
@@ -48,8 +45,11 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-  /* Default: take no action */
-
+    uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
+    was_high_delay = high_delay;
+    high_delay = rtt > 75;
+    //cerr << "Ack for datagram " << sequence_number_acked //<< " with 1 way time " << send_timestamp_acked-recv_timestamp_acked
+	 //<< ", rtt time " << timestamp_ack_received-send_timestamp_acked << " and smallwindow=" << (high_delay && was_high_delay) << endl;
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
