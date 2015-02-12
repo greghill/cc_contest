@@ -10,7 +10,7 @@ Controller::Controller( const bool debug )
   : debug_( debug )
   , high_delay(false)
   , was_high_delay(false)
-  , consecutive_low_delay(10)
+  , consecutive_low_delay(20)
 {}
 
 /* Get current window size, in datagrams */
@@ -49,7 +49,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
                                /* when the ack was received (by sender) */
 {
     uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
-    if (rtt < 45)
+    if (rtt < 60)
         consecutive_low_delay++;
     else
         consecutive_low_delay = 0;
@@ -58,6 +58,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     high_delay = rtt > 75;
     //cerr << "Ack for datagram " << sequence_number_acked //<< " with 1 way time " << send_timestamp_acked-recv_timestamp_acked
 	 //<< ", rtt time " << timestamp_ack_received-send_timestamp_acked << " and smallwindow=" << (high_delay && was_high_delay) << endl;
+//     cerr << (consecutive_low_delay > 10) << " and rtt time is " << timestamp_ack_received-send_timestamp_acked << endl;
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
