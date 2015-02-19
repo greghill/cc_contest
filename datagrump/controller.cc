@@ -16,12 +16,15 @@ Controller::Controller( const bool debug )
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
+    /*
     if (consecutive_low_delay > 10)
         return 30;
     else if (high_delay && was_high_delay)
         return 8;
     else
         return 15;
+        */
+        return 1;
 }
 
 /* A datagram was sent */
