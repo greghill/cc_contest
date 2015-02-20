@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 
 #include "controller.hh"
 #include "timestamp.hh"
@@ -20,7 +21,7 @@ unsigned int Controller::window_size( void )
         //        cerr << "window_frozen" << endl;
         return 0;
     }
-    int window = 1000/ewma;
+    int window = 300/ pow(ewma, .7);
     if (window < 2)
         return 2;
     else 
@@ -32,6 +33,7 @@ void Controller::greg_recieved()
     if (got_greg) {
  //       cerr << "unfrozen" << endl;
         freeze_window = false;
+        ewma = 50; // reset ewma on freeze event
     } else {
         freeze_window = true;
         got_greg = true;
@@ -63,7 +65,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-    double alpha = .75;
+    double alpha = .55;
     uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
     ewma = alpha * rtt + ((1-alpha) * ewma);
     //cerr << "Ack for datagram " << sequence_number_acked //<< " with 1 way time " << send_timestamp_acked-recv_timestamp_acked
