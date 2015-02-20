@@ -24,7 +24,7 @@ unsigned int Controller::window_size( void )
     else
         return 15;
         */
-        return 1;
+        return 50;
 }
 
 /* A datagram was sent */

@@ -80,6 +80,10 @@ DatagrumpSender::DatagrumpSender( const char * const host,
 void DatagrumpSender::got_ack( const uint64_t timestamp,
 			       const ContestMessage & ack )
 {
+    if (ack.is_greg()) {
+        cerr << "GREEEEEEEEEEEEEEEEEEEEEEEEG" << endl;
+        return;
+    }
   if ( not ack.is_ack() ) {
     throw runtime_error( "sender got something other than an ack from the receiver" );
   }
@@ -135,9 +139,10 @@ int DatagrumpSender::loop( void )
      process it and inform the controller
      (by using the sender's got_ack method) */
   poller.add_action( Action( socket_, Direction::In, [&] () {
-	const UDPSocket::received_datagram recd = socket_.recv();
-	const ContestMessage ack  = recd.payload;
-	got_ack( recd.timestamp, ack );
+	std::unique_ptr<UDPSocket::received_datagram> recd;
+    socket_.recv(recd, true);
+	const ContestMessage ack  = recd->payload;
+	got_ack( recd->timestamp, ack );
 	return ResultType::Continue;
       } ) );
 

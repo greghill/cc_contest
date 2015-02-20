@@ -2,6 +2,7 @@
 #define SOCKET_HH
 
 #include <functional>
+#include <memory>
 
 #include "address.hh"
 #include "file_descriptor.hh"
@@ -53,7 +54,8 @@ public:
   };
 
   /* receive datagram, timestamp, and where it came from */
-  received_datagram recv( void );
+  //received_datagram recv( void );
+  bool recv(  std::unique_ptr<received_datagram>& , bool);
 
   /* send datagram to specified address */
   void sendto( const Address & peer, const std::string & payload );

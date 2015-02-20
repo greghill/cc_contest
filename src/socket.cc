@@ -77,7 +77,7 @@ void Socket::connect( const Address & address )
 }
 
 /* receive datagram and where it came from */
-UDPSocket::received_datagram UDPSocket::recv( void )
+bool UDPSocket::recv( std::unique_ptr<UDPSocket::received_datagram> &ret, bool blocking)
 {
   static const ssize_t RECEIVE_MTU = 65536;
 
@@ -108,8 +108,12 @@ UDPSocket::received_datagram UDPSocket::recv( void )
   ssize_t recv_len; 
   do {
       recv_len = recvmsg( fd_num(), &header, 0 );
-      if (recv_len < 0 && (errno != EAGAIN || errno != EWOULDBLOCK))
-          printf("THIS IS REALLLLY TERRIBLE\n");
+      if (recv_len < 0) {
+          if  (errno != EAGAIN || errno != EWOULDBLOCK)
+              printf("THIS IS REALLLLY TERRIBLE\n");
+          if (!blocking)
+              return false;
+      }
   }
   while ( recv_len < 0  );
 
@@ -135,12 +139,12 @@ UDPSocket::received_datagram UDPSocket::recv( void )
     ts_hdr = CMSG_NXTHDR( &header, ts_hdr );
   }
 
-  received_datagram ret = { Address( datagram_source_address,
+  ret.reset(new  UDPSocket::received_datagram{ Address( datagram_source_address,
 				     header.msg_namelen ),
 			    timestamp,
-			    string( msg_payload, recv_len ) };
+			    string( msg_payload, recv_len ) });
 
-  return ret;
+  return true;
 }
 
 /* send datagram to specified address */
