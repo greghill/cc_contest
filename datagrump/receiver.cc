@@ -66,9 +66,9 @@ int main( int argc, char *argv[] )
       } else {
           if (!sent_warning && got_first) {
               uint64_t wait_time = timestamp_ms() - last_message_time;
-              if (wait_time > 100) {
+              if (wait_time > 50) {
                   sent_warning = true;
-                  cerr << "100+ MS WAITING " << wait_time << endl;
+                  cerr << "50+ MS WAITING " << wait_time << endl;
                   hi.header.ack_sequence_number = uint64_t (-2);
                   socket.sendto( source_addr, hi.to_string());
               }

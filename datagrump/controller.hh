@@ -13,6 +13,8 @@ private:
   bool high_delay;
   bool was_high_delay;
   uint32_t consecutive_low_delay;
+  bool got_greg;
+  uint32_t consecutive_post_greg;
 
 public:
   /* Public interface for the congestion controller */
@@ -25,6 +27,7 @@ public:
   /* Get current window size, in datagrams */
   unsigned int window_size( void );
 
+  void greg_recieved( void );
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
 			  const uint64_t send_timestamp );

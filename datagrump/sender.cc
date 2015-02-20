@@ -81,7 +81,7 @@ void DatagrumpSender::got_ack( const uint64_t timestamp,
 			       const ContestMessage & ack )
 {
     if (ack.is_greg()) {
-        cerr << "GREEEEEEEEEEEEEEEEEEEEEEEEG" << endl;
+        controller_.greg_recieved();
         return;
     }
   if ( not ack.is_ack() ) {

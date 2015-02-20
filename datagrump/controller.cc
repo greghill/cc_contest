@@ -11,6 +11,8 @@ Controller::Controller( const bool debug )
   , high_delay(false)
   , was_high_delay(false)
   , consecutive_low_delay(20)
+  , got_greg(false)
+  , consecutive_post_greg(0)
 {}
 
 /* Get current window size, in datagrams */
@@ -24,7 +26,20 @@ unsigned int Controller::window_size( void )
     else
         return 15;
         */
-        return 50;
+    if (!got_greg)
+        return 40;
+    else {
+        if (consecutive_post_greg > 30)
+            got_greg = false;
+        //cerr << "got greeeeg" << endl;
+        return 2;
+    }
+}
+
+void Controller::greg_recieved()
+{
+    got_greg = true;
+    consecutive_post_greg = 0;
 }
 
 /* A datagram was sent */
@@ -51,6 +66,9 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
+    if (got_greg)
+        consecutive_post_greg++;
+
     uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
     if (rtt < 60)
         consecutive_low_delay++;
