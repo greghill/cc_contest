@@ -19,28 +19,38 @@ unsigned int Controller::window_size( void )
 {
     if (got_greg)
     {
-        if (consecutive_post_greg > 30) {
-            cerr << "end greeeeg" << endl;
+        if (fre) {
+            //cerr << "end greeeeg" << endl;
             got_greg = false;
-            return 2;
         }
         if (consecutive_post_greg > 10) {
+            //cerr << "OOOOOOOO" << endl;
             return 8;
         }
+        //cerr << "OO" << endl;
+        return 2;
     }
 
-    if (consecutive_low_delay > 10)
-        return 40;
-    else if (consecutive_high_delay > 1)
+    if (consecutive_low_delay > 10) {
+        //cerr << "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << endl;
+        return 35;
+    } else if (consecutive_high_delay > 1) {
+        //cerr << "OOOOOOOO" << endl;
         return 8;
-    else
+    } else {
+        //cerr << "OOOOOOOOOOOOOOO" << endl;
         return 15;
+    }
 }
 
 void Controller::greg_recieved()
 {
-    got_greg = true;
-    consecutive_post_greg = 0;
+    if (got_greg)
+        freeze_window = false;
+    else {
+        freeze_window = true;
+        got_greg = true;
+    }
 }
 
 /* A datagram was sent */
@@ -50,6 +60,7 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
                                     /* in milliseconds */
 {
   /* Default: take no action */
+  last_timestamp_sent = send_timestamp;
 
   if ( debug_ ) {
     cerr << "At time " << send_timestamp
@@ -71,7 +82,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
         consecutive_post_greg++;
 
     uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
-    if (rtt < 60)
+    if (rtt < 65)
         consecutive_low_delay++;
     else
         consecutive_low_delay = 0;

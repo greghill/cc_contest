@@ -49,18 +49,24 @@ int main( int argc, char *argv[] )
       bool gotMsg = socket.recv(recd, false);
       if (gotMsg) {
           got_first = true;
-          sent_warning = false;
           last_message_time = timestamp_ms();
           ContestMessage message = recd->payload;
 
           /* assemble the acknowledgment */
           message.transform_into_ack( sequence_number++, recd->timestamp );
 
+          hi = message;
+          source_addr = recd->source_address;
+          if (sent_warning) 
+          {
+              sent_warning = false;
+              hi.header.ack_sequence_number = uint64_t (-2);
+              socket.sendto( source_addr, hi.to_string());
+          }
+
           /* timestamp the ack just before sending */
           message.set_send_timestamp();
 
-          hi = message;
-          source_addr = recd->source_address;
           /* send the ack */
           socket.sendto( recd->source_address, message.to_string() ); // deal with nonblocking
       } else {
