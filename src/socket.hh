@@ -63,6 +63,8 @@ public:
 
   /* turn on timestamps on receipt */
   void set_timestamps( void );
+
+  void set_nonblocking( void );
 };
 
 /* TCP socket */

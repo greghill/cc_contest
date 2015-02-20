@@ -26,6 +26,8 @@ int main( int argc, char *argv[] )
   /* turn on timestamps on receipt */
   socket.set_timestamps();
 
+  socket.set_nonblocking();
+
   /* "bind" the socket to the user-specified local port number */
   socket.bind( Address( "::0", argv[ 1 ] ) );
 

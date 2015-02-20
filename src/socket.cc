@@ -1,4 +1,5 @@
 #include <sys/socket.h>
+#include <sys/fcntl.h>
 
 #include "socket.hh"
 #include "util.hh"
@@ -103,8 +104,14 @@ UDPSocket::received_datagram UDPSocket::recv( void )
   header.msg_controllen = sizeof( msg_control );
 
   /* call recvmsg */
-  ssize_t recv_len = SystemCall( "recvmsg",
-				 recvmsg( fd_num(), &header, 0 ) );
+
+  ssize_t recv_len; 
+  do {
+      recv_len = recvmsg( fd_num(), &header, 0 );
+      if (recv_len < 0 && (errno != EAGAIN || errno != EWOULDBLOCK))
+          printf("THIS IS REALLLLY TERRIBLE\n");
+  }
+  while ( recv_len < 0  );
 
   register_read();
 
@@ -201,4 +208,10 @@ void Socket::set_reuseaddr( void )
 void UDPSocket::set_timestamps( void )
 {
   setsockopt( SOL_SOCKET, SO_TIMESTAMPNS, int( true ) );
+}
+
+void UDPSocket::set_nonblocking( void )
+{
+    SystemCall( "fnctl",
+            ::fcntl(fd_num(), F_SETFL, O_NONBLOCK));
 }
