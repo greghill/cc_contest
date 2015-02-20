@@ -22,7 +22,10 @@ unsigned int Controller::window_size( void )
         return 0;
     }
 
-    if (consecutive_low_delay > 10) {
+    if (consecutive_low_delay > 100) {
+        //cerr << "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << endl;
+        return 55;
+    } else if (consecutive_low_delay > 10) {
         //cerr << "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << endl;
         return 35;
     } else if (consecutive_high_delay > 1) {
