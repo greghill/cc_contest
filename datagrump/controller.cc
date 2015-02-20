@@ -21,8 +21,10 @@ unsigned int Controller::window_size( void )
         return 0;
     }
     int window = 1000/ewma;
-    cerr << window << endl;
-    return window;
+    if (window < 2)
+        return 2;
+    else 
+        return window;
 }
 
 void Controller::greg_recieved()
@@ -61,7 +63,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-    double alpha = .6;
+    double alpha = .75;
     uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
     ewma = alpha * rtt + ((1-alpha) * ewma);
     //cerr << "Ack for datagram " << sequence_number_acked //<< " with 1 way time " << send_timestamp_acked-recv_timestamp_acked
