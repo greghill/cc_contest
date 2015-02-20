@@ -8,8 +8,7 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , consecutive_high_delay(0)
-  , consecutive_low_delay(20)
+  , ewma(60)
   , got_greg(false)
   , freeze_window(false)
 {}
@@ -18,23 +17,12 @@ Controller::Controller( const bool debug )
 unsigned int Controller::window_size( void )
 {
     if (freeze_window) {
-//        cerr << "window_frozen" << endl;
+        //        cerr << "window_frozen" << endl;
         return 0;
     }
-
-    if (consecutive_low_delay > 100) {
-        //cerr << "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << endl;
-        return 55;
-    } else if (consecutive_low_delay > 10) {
-        //cerr << "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" << endl;
-        return 35;
-    } else if (consecutive_high_delay > 1) {
-        //cerr << "OOOOOOOO" << endl;
-        return 8;
-    } else {
-        //cerr << "OOOOOOOOOOOOOOO" << endl;
-        return 15;
-    }
+    int window = 1000/ewma;
+    cerr << window << endl;
+    return window;
 }
 
 void Controller::greg_recieved()
@@ -42,7 +30,6 @@ void Controller::greg_recieved()
     if (got_greg) {
  //       cerr << "unfrozen" << endl;
         freeze_window = false;
-        consecutive_high_delay = 2;
     } else {
         freeze_window = true;
         got_greg = true;
@@ -74,16 +61,9 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
+    double alpha = .6;
     uint64_t rtt = timestamp_ack_received-send_timestamp_acked;
-    if (rtt < 65)
-        consecutive_low_delay++;
-    else
-        consecutive_low_delay = 0;
-
-    if (rtt > 75)
-        consecutive_high_delay++;
-    else
-        consecutive_high_delay = 0;
+    ewma = alpha * rtt + ((1-alpha) * ewma);
     //cerr << "Ack for datagram " << sequence_number_acked //<< " with 1 way time " << send_timestamp_acked-recv_timestamp_acked
 	 //<< ", rtt time " << timestamp_ack_received-send_timestamp_acked << " and smallwindow=" << (high_delay && was_high_delay) << endl;
 //   cerr << (consecutive_low_delay > 10) << " and rtt time is " << timestamp_ack_received-send_timestamp_acked << endl;

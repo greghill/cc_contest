@@ -10,8 +10,7 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  uint32_t consecutive_high_delay;
-  uint32_t consecutive_low_delay;
+  double ewma;
   bool got_greg;
   bool freeze_window;
 
