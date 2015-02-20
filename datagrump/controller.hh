@@ -10,8 +10,7 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  bool high_delay;
-  bool was_high_delay;
+  uint32_t consecutive_high_delay;
   uint32_t consecutive_low_delay;
   bool got_greg;
   uint32_t consecutive_post_greg;

@@ -8,8 +8,7 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , high_delay(false)
-  , was_high_delay(false)
+  , consecutive_high_delay(0)
   , consecutive_low_delay(20)
   , got_greg(false)
   , consecutive_post_greg(0)
@@ -18,22 +17,24 @@ Controller::Controller( const bool debug )
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
-    /*
+    if (got_greg)
+    {
+        if (consecutive_post_greg > 30) {
+            cerr << "end greeeeg" << endl;
+            got_greg = false;
+            return 2;
+        }
+        if (consecutive_post_greg > 10) {
+            return 8;
+        }
+    }
+
     if (consecutive_low_delay > 10)
-        return 30;
-    else if (high_delay && was_high_delay)
+        return 40;
+    else if (consecutive_high_delay > 1)
         return 8;
     else
         return 15;
-        */
-    if (!got_greg)
-        return 40;
-    else {
-        if (consecutive_post_greg > 30)
-            got_greg = false;
-        //cerr << "got greeeeg" << endl;
-        return 2;
-    }
 }
 
 void Controller::greg_recieved()
@@ -75,8 +76,10 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     else
         consecutive_low_delay = 0;
 
-    was_high_delay = high_delay;
-    high_delay = rtt > 75;
+    if (rtt > 75)
+        consecutive_high_delay++;
+    else
+        consecutive_high_delay = 0;
     //cerr << "Ack for datagram " << sequence_number_acked //<< " with 1 way time " << send_timestamp_acked-recv_timestamp_acked
 	 //<< ", rtt time " << timestamp_ack_received-send_timestamp_acked << " and smallwindow=" << (high_delay && was_high_delay) << endl;
 //   cerr << (consecutive_low_delay > 10) << " and rtt time is " << timestamp_ack_received-send_timestamp_acked << endl;
