@@ -13,7 +13,7 @@ private:
   uint32_t consecutive_high_delay;
   uint32_t consecutive_low_delay;
   bool got_greg;
-  uint32_t consecutive_post_greg;
+  bool freeze_window;
 
 public:
   /* Public interface for the congestion controller */
