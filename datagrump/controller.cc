@@ -24,11 +24,21 @@ unsigned int Controller::window_size( void )
         return 0;
     }
     */
-    int window = 300/ (ewma-20);
+    int window = 150/ (pow(ewma, .7)-7);
+
+    for (int i = 0; i < window; i++)
+    {
+        if (i > 55)
+        cerr << "!!";
+            else
+        cerr << "||";
+    }
+    cerr << endl;
+
     if (window < 2)
         return 2;
-    else  if (window > 50)
-        return 50;
+    else  if (window > 55)
+        return 55;
     else
         return window;
 }
@@ -73,7 +83,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
     if (owt < lowest_owt)
         lowest_owt = owt;
-    double alpha = .03;
+    double alpha = .02;
     int64_t est_owt = (20-lowest_owt) + owt;
     //cerr << "est owt " <<  est_owt << endl;
     ewma = alpha * est_owt + ((1-alpha) * ewma);
