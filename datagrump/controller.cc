@@ -73,7 +73,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
     if (owt < lowest_owt)
         lowest_owt = owt;
-    double alpha = .05;
+    double alpha = .03;
     int64_t est_owt = (20-lowest_owt) + owt;
     //cerr << "est owt " <<  est_owt << endl;
     ewma = alpha * est_owt + ((1-alpha) * ewma);
