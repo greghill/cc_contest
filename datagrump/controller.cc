@@ -93,12 +93,12 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
         //cerr << "owt " << est_owt << " causes window drop from " << window_drop_at/8 << " to " << curwindow/8 << " at time " << time_from_start << endl;
     }
     */
-    if (est_owt > 32 )
+    if (est_owt > 33 )
     {
         curwindow--;
     }
 
-    if (est_owt < 29)
+    if (est_owt < 30)
     {
         curwindow++;
         if (consecutive_low_delay > 20)
