@@ -77,6 +77,8 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     ewma = alpha * est_owt + ((1-alpha) * ewma);
     if (est_owt > 50)
         curwindow = curwindow-2;
+    else if (est_owt > 40)
+        curwindow--;
     else
         curwindow++;
 
