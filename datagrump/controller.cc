@@ -10,6 +10,7 @@ using namespace std;
 Controller::Controller( const bool debug )
   : debug_( debug )
   , ewma(60)
+  , curwindow(80)
   , lowest_owt(99999)
   , got_greg(false)
   , freeze_window(false)
@@ -24,23 +25,10 @@ unsigned int Controller::window_size( void )
         return 0;
     }
     */
-    int window = 150/ (pow(ewma, .7)-7);
+    //int window = 110/ (pow(ewma, .7)-7);
 
-    for (int i = 0; i < window; i++)
-    {
-        if (i > 55)
-        cerr << "!!";
-            else
-        cerr << "||";
-    }
-    cerr << endl;
 
-    if (window < 2)
-        return 2;
-    else  if (window > 55)
-        return 55;
-    else
-        return window;
+    return curwindow/8;
 }
 
 void Controller::greg_recieved()
@@ -48,7 +36,7 @@ void Controller::greg_recieved()
     if (got_greg) {
  //       cerr << "unfrozen" << endl;
         freeze_window = false;
-        ewma = 50; // reset ewma on freeze event
+        //ewma = 50; // reset ewma on freeze event
     } else {
         freeze_window = true;
         got_greg = true;
@@ -83,10 +71,19 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
     if (owt < lowest_owt)
         lowest_owt = owt;
-    double alpha = .02;
+    double alpha = .2;
     int64_t est_owt = (20-lowest_owt) + owt;
     //cerr << "est owt " <<  est_owt << endl;
     ewma = alpha * est_owt + ((1-alpha) * ewma);
+    if (est_owt > 50)
+        curwindow = curwindow-2;
+    else
+        curwindow++;
+
+    if (curwindow < 8)
+        curwindow = 8;
+    else if (curwindow > 300)
+        curwindow = 300;
     /*
     for (int i = 0; i < ewma-20; i++)
         cerr << "|";

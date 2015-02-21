@@ -11,6 +11,7 @@ private:
   bool debug_; /* Enables debugging output */
 
   double ewma;
+  unsigned int curwindow;
   int64_t lowest_owt;
   bool got_greg;
   bool freeze_window;
