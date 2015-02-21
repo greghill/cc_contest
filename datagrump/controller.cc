@@ -73,6 +73,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
+    //double time_from_start = double(send_timestamp_acked-first_time) / 1000;
     int64_t owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
     if (owt < lowest_owt)
         lowest_owt = owt;
@@ -80,20 +81,29 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t est_owt = (20-lowest_owt) + owt;
     //cerr << "est owt " <<  est_owt << endl;
     ewma = alpha * est_owt + ((1-alpha) * ewma);
-    if (est_owt > 100 )//&& since_window_drop > (window_drop_at*.5))
+    /*
+    if (est_owt > 100)
     {
         // if since last window drop < something drop even more
         since_window_drop = 0;
         window_drop_at = curwindow;
         //curwindow = (curwindow*.7)-10;
-        curwindow = curwindow - 2;
-        //cerr << "window drop at owt " << est_owt << " and window drop at " << window_drop_at/8 << " to " << curwindow/8 << endl;
+        curwindow = curwindow - 3;
+        //cerr << "owt " << est_owt << " causes window drop from " << window_drop_at/8 << " to " << curwindow/8 << " at time " << time_from_start << endl;
     }
-    else if (est_owt > 35)// && since_window_drop > (window_drop_at*.5))
+    */
+    if (est_owt > 120 )
+    {
+        curwindow -= 1;
+    }
+    else if (est_owt > 32 )
     {
         curwindow--;
     }
-    else //if (since_window_drop > (window_drop_at*.5))
+    else if (est_owt > 28 )
+    {
+    }
+    else
     {
         curwindow++;
     }
