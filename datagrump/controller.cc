@@ -13,7 +13,10 @@ Controller::Controller( const bool debug )
   , curwindow(80)
   , lowest_owt(99999)
   , got_greg(false)
+  , since_window_drop(0)
+  , window_drop_at(0)
   , freeze_window(false)
+  , first_time(-1)
 {}
 
 /* Get current window size, in datagrams */
@@ -49,6 +52,8 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
 				    const uint64_t send_timestamp )
                                     /* in milliseconds */
 {
+    if (first_time == uint64_t(-1))
+        first_time = send_timestamp;
   /* Default: take no action */
   //last_timestamp_sent = send_timestamp;
 
@@ -75,12 +80,24 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t est_owt = (20-lowest_owt) + owt;
     //cerr << "est owt " <<  est_owt << endl;
     ewma = alpha * est_owt + ((1-alpha) * ewma);
-    if (est_owt > 50)
-        curwindow = curwindow-2;
-    else if (est_owt > 40)
+    if (est_owt > 100 )//&& since_window_drop > (window_drop_at*.5))
+    {
+        // if since last window drop < something drop even more
+        since_window_drop = 0;
+        window_drop_at = curwindow;
+        //curwindow = (curwindow*.7)-10;
+        curwindow = curwindow - 2;
+        //cerr << "window drop at owt " << est_owt << " and window drop at " << window_drop_at/8 << " to " << curwindow/8 << endl;
+    }
+    else if (est_owt > 35)// && since_window_drop > (window_drop_at*.5))
+    {
         curwindow--;
-    else
+    }
+    else //if (since_window_drop > (window_drop_at*.5))
+    {
         curwindow++;
+    }
+    since_window_drop++;
 
     if (curwindow < 8)
         curwindow = 8;

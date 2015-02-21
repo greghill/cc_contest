@@ -14,7 +14,10 @@ private:
   unsigned int curwindow;
   int64_t lowest_owt;
   bool got_greg;
+  unsigned int since_window_drop;
+  unsigned int window_drop_at;
   bool freeze_window;
+  uint64_t first_time;
 
 public:
   /* Public interface for the congestion controller */
