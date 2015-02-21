@@ -84,8 +84,8 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 
     if (curwindow < 8)
         curwindow = 8;
-    else if (curwindow > 300)
-        curwindow = 300;
+    else if (curwindow > 400)
+        curwindow = 400;
     /*
     for (int i = 0; i < ewma-20; i++)
         cerr << "|";
