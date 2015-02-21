@@ -17,6 +17,7 @@ Controller::Controller( const bool debug )
   , window_drop_at(0)
   , freeze_window(false)
   , first_time(-1)
+  , consecutive_low_delay(4)
 {}
 
 /* Get current window size, in datagrams */
@@ -92,21 +93,26 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
         //cerr << "owt " << est_owt << " causes window drop from " << window_drop_at/8 << " to " << curwindow/8 << " at time " << time_from_start << endl;
     }
     */
-    if (est_owt > 120 )
-    {
-        curwindow -= 1;
-    }
-    else if (est_owt > 32 )
+    if (est_owt > 32 )
     {
         curwindow--;
     }
-    else if (est_owt > 28 )
-    {
-    }
-    else
+
+    if (est_owt < 29)
     {
         curwindow++;
+        if (consecutive_low_delay > 20)
+            curwindow++;
+        consecutive_low_delay++;
+        /*
+        for (uint64_t i = 0; i < consecutive_low_delay; i++)
+            cerr << "|";
+        cerr << endl;
+        */
     }
+    else 
+        consecutive_low_delay = 0;
+
     since_window_drop++;
 
     if (curwindow < 8)
