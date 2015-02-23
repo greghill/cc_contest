@@ -2,7 +2,6 @@
 #define SOCKET_HH
 
 #include <functional>
-#include <memory>
 
 #include "address.hh"
 #include "file_descriptor.hh"
@@ -54,8 +53,7 @@ public:
   };
 
   /* receive datagram, timestamp, and where it came from */
-  //received_datagram recv( void );
-  bool recv(  std::unique_ptr<received_datagram>& , bool);
+  received_datagram recv( void );
 
   /* send datagram to specified address */
   void sendto( const Address & peer, const std::string & payload );
@@ -65,8 +63,6 @@ public:
 
   /* turn on timestamps on receipt */
   void set_timestamps( void );
-
-  void set_nonblocking( void );
 };
 
 /* TCP socket */
