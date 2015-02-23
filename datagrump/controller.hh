@@ -11,7 +11,7 @@ private:
   bool debug_; /* Enables debugging output */
 
   double curwindow;
-  int64_t lowest_owt;
+  int64_t skewed_lowest_owt;
   int64_t lowest_rtt;
   uint64_t first_time;
   uint64_t consecutive_high_delay;
