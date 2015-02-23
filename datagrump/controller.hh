@@ -10,7 +10,7 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  unsigned int curwindow;
+  double curwindow;
   int64_t lowest_owt;
   int64_t lowest_rtt;
   uint64_t first_time;

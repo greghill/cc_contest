@@ -7,7 +7,7 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , curwindow(80)
+  , curwindow(10)
   , lowest_owt(99999)
   , lowest_rtt(99999)
   , first_time(-1)
@@ -18,7 +18,7 @@ Controller::Controller( const bool debug )
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
-    return curwindow/4;
+    return curwindow;
 }
 
 /* A datagram was sent */
@@ -57,14 +57,14 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t est_owt = ((lowest_rtt/2)-lowest_owt) + owt;
 
     if (est_owt > 33 )
-        curwindow--;
+        curwindow -= .25;
     else if (est_owt < 30)
-        curwindow++;
+        curwindow += .25;
 
-    if (curwindow < 8)
-        curwindow = 8;
-    else if (curwindow > 400)
-        curwindow = 400;
+    if (curwindow < 2)
+        curwindow = 2;
+    else if (curwindow > 100)
+        curwindow = 100;
 
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
