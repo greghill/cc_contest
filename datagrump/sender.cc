@@ -7,6 +7,7 @@
 #include "contest_message.hh"
 #include "controller.hh"
 #include "poller.hh"
+#include "timestamp.hh"
 
 using namespace std;
 using namespace PollerShortNames;
@@ -153,6 +154,7 @@ int DatagrumpSender::loop( void )
       return ret.exit_status;
     } else if ( ret.result == PollResult::Timeout ) {
       /* After a timeout, send one datagram to try to get things moving again */
+      cerr << "GREG WE TIMEEED OUT AT " << timestamp_ms() << endl;
       send_datagram();
     }
   }

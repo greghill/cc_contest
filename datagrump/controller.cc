@@ -37,6 +37,12 @@ unsigned int Controller::window_size( void )
 
 void Controller::greg_recieved()
 {
+    curwindow -= 4;
+    if (curwindow < 4)
+        curwindow = 4;
+    cerr << "got greg, moving to window " << curwindow/4 << endl;
+
+    /*
     if (got_greg) {
  //       cerr << "unfrozen" << endl;
         freeze_window = false;
@@ -45,6 +51,7 @@ void Controller::greg_recieved()
         freeze_window = true;
         got_greg = true;
     }
+    */
 }
 
 /* A datagram was sent */
@@ -93,32 +100,41 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
         //cerr << "owt " << est_owt << " causes window drop from " << window_drop_at/8 << " to " << curwindow/8 << " at time " << time_from_start << endl;
     }
     */
-    if (est_owt > 33 )
-    {
-        curwindow--;
+    /*
+    if (est_owt > 1000) {
+        curwindow = 16;
+        freeze_window = true;
     }
-
-    if (est_owt < 30)
+    */
+    if (!freeze_window)
     {
-        curwindow++;
-        if (consecutive_low_delay > 20)
+        if (est_owt > 33 )
+        {
+            curwindow--;
+        }
+
+        if (est_owt < 30)
+        {
             curwindow++;
-        consecutive_low_delay++;
-        /*
-        for (uint64_t i = 0; i < consecutive_low_delay; i++)
-            cerr << "|";
-        cerr << endl;
-        */
+            if (consecutive_low_delay > 20)
+                curwindow++;
+            consecutive_low_delay++;
+            /*
+               for (uint64_t i = 0; i < consecutive_low_delay; i++)
+               cerr << "|";
+               cerr << endl;
+             */
+        }
+        else 
+            consecutive_low_delay = 0;
+
+        since_window_drop++;
+
+        if (curwindow < 8)
+            curwindow = 8;
+        else if (curwindow > 400)
+            curwindow = 400;
     }
-    else 
-        consecutive_low_delay = 0;
-
-    since_window_drop++;
-
-    if (curwindow < 8)
-        curwindow = 8;
-    else if (curwindow > 400)
-        curwindow = 400;
     /*
     for (int i = 0; i < ewma-20; i++)
         cerr << "|";
@@ -129,6 +145,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 	 << " received ack for datagram " << sequence_number_acked
 	 << " (send @ time " << send_timestamp_acked
 	 << ", received @ time " << recv_timestamp_acked << " by receiver's clock)"
+    << " est_owt is! " << est_owt
 	 << endl;
   }
 }
