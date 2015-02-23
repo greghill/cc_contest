@@ -1,0 +1,1 @@
+ make && google-chrome `./run-contest greghill | tail -n 2`
