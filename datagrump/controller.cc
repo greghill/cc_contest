@@ -17,6 +17,7 @@ Controller::Controller( const bool debug )
   , window_drop_at(0)
   , freeze_window(false)
   , first_time(-1)
+  , consecutive_high_delay(0)
   , consecutive_low_delay(4)
 {}
 
@@ -110,8 +111,18 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     {
         if (est_owt > 33 )
         {
-            curwindow--;
+            if (consecutive_high_delay > 35)
+            {
+                //cerr << "too many, not decrementing" << endl;
+                //curwindow++;
+                consecutive_high_delay = 15;
+            }
+            else
+                curwindow--;
+            consecutive_high_delay++;
         }
+        else
+            consecutive_high_delay=0;
 
         if (est_owt < 30)
         {

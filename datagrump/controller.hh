@@ -18,6 +18,7 @@ private:
   unsigned int window_drop_at;
   bool freeze_window;
   uint64_t first_time;
+  uint64_t consecutive_high_delay;
   uint64_t consecutive_low_delay;
 
 public:
