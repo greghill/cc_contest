@@ -27,7 +27,6 @@ public:
   /* Get current window size, in datagrams */
   unsigned int window_size( void );
 
-  void greg_recieved( void );
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
 			  const uint64_t send_timestamp );

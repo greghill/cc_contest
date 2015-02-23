@@ -1,8 +1,6 @@
 #include <iostream>
-#include <math.h>
 
 #include "controller.hh"
-#include "timestamp.hh"
 
 using namespace std;
 
