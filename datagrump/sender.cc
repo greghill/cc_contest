@@ -7,7 +7,6 @@
 #include "contest_message.hh"
 #include "controller.hh"
 #include "poller.hh"
-#include "timestamp.hh"
 
 using namespace std;
 using namespace PollerShortNames;
@@ -81,10 +80,6 @@ DatagrumpSender::DatagrumpSender( const char * const host,
 void DatagrumpSender::got_ack( const uint64_t timestamp,
 			       const ContestMessage & ack )
 {
-    if (ack.is_greg()) {
-        controller_.greg_recieved();
-        return;
-    }
   if ( not ack.is_ack() ) {
     throw runtime_error( "sender got something other than an ack from the receiver" );
   }
@@ -140,10 +135,9 @@ int DatagrumpSender::loop( void )
      process it and inform the controller
      (by using the sender's got_ack method) */
   poller.add_action( Action( socket_, Direction::In, [&] () {
-	std::unique_ptr<UDPSocket::received_datagram> recd;
-    socket_.recv(recd, true);
-	const ContestMessage ack  = recd->payload;
-	got_ack( recd->timestamp, ack );
+	const UDPSocket::received_datagram recd = socket_.recv();
+	const ContestMessage ack  = recd.payload;
+	got_ack( recd.timestamp, ack );
 	return ResultType::Continue;
       } ) );
 
@@ -154,7 +148,6 @@ int DatagrumpSender::loop( void )
       return ret.exit_status;
     } else if ( ret.result == PollResult::Timeout ) {
       /* After a timeout, send one datagram to try to get things moving again */
-//      cerr << "GREG WE TIMEEED OUT AT " << timestamp_ms() << endl;
       send_datagram();
     }
   }
