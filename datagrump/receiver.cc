@@ -27,7 +27,7 @@ int main( int argc, char *argv[] )
   /* turn on timestamps on receipt */
   socket.set_timestamps();
 
-  //socket.set_nonblocking();
+  socket.set_nonblocking();
 
   /* "bind" the socket to the user-specified local port number */
   socket.bind( Address( "::0", argv[ 1 ] ) );
@@ -70,9 +70,9 @@ int main( int argc, char *argv[] )
       } else {
           if (!sent_warning && got_first) {
               uint64_t wait_time = timestamp_ms() - last_message_time;
-              if (wait_time > 60) {
+              if (wait_time > 50) {
                   sent_warning = true;
-                  cerr << "60+ MS WAITING " << wait_time << endl;
+                  //cerr << "40+ MS WAITING " << wait_time << endl;
                   hi.header.ack_sequence_number = uint64_t (-2);
                   socket.sendto( source_addr, hi.to_string());
               }

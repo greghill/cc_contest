@@ -20,6 +20,7 @@ private:
   uint64_t first_time;
   uint64_t consecutive_high_delay;
   uint64_t consecutive_low_delay;
+  bool got_warning;
 
 public:
   /* Public interface for the congestion controller */
@@ -31,6 +32,8 @@ public:
 
   /* Get current window size, in datagrams */
   unsigned int window_size( void );
+
+  void adjust_window( int64_t );
 
   void greg_recieved( void );
   /* A datagram was sent */
