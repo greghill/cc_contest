@@ -111,14 +111,15 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     {
         if (est_owt > 33 )
         {
-            if (consecutive_high_delay > 35)
+            if (consecutive_high_delay > 25)
             {
-                //cerr << "too many, not decrementing" << endl;
-                //curwindow++;
-                consecutive_high_delay = 15;
+                cerr << "too many, not decrementing" << endl;
+                curwindow++;
+                consecutive_high_delay = 20;
             }
             else
                 curwindow--;
+
             consecutive_high_delay++;
         }
         else
@@ -126,17 +127,13 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 
         if (est_owt < 30)
         {
-            curwindow++;
+            if (consecutive_low_delay > 1)
+                curwindow++;
             if (consecutive_low_delay > 20)
             {
-                curwindow++;
+                curwindow++; // again
             }
             consecutive_low_delay++;
-            /*
-               for (uint64_t i = 0; i < consecutive_low_delay; i++)
-               cerr << "|";
-               cerr << endl;
-             */
         }
         else 
             consecutive_low_delay = 0;
@@ -148,11 +145,6 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
         else if (curwindow > 400)
             curwindow = 400;
     }
-    /*
-    for (int i = 0; i < ewma-20; i++)
-        cerr << "|";
-    cerr << endl;
-    */
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
