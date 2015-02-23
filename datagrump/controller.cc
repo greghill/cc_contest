@@ -128,7 +128,9 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
         {
             curwindow++;
             if (consecutive_low_delay > 20)
+            {
                 curwindow++;
+            }
             consecutive_low_delay++;
             /*
                for (uint64_t i = 0; i < consecutive_low_delay; i++)
@@ -165,5 +167,5 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 90; /* timeout of one second */
+  return 80; /* timeout of one second */
 }
