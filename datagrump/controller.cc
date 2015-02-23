@@ -1,24 +1,27 @@
 #include <iostream>
 
 #include "controller.hh"
+#include "timestamp.hh"
 
 using namespace std;
 
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , curwindow(16)
+  , the_window_size(16)
   , skewed_lowest_owt(99999)
   , lowest_rtt(99999)
-  , first_time(-1)
-  , consecutive_high_delay(0)
-  , consecutive_low_delay(4)
 {}
 
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
-    return curwindow;
+  if ( debug_ ) {
+    cerr << "At time " << timestamp_ms()
+        << " window size is " << the_window_size << endl;
+  }
+
+  return the_window_size;
 }
 
 /* A datagram was sent */
@@ -27,8 +30,7 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
 				    const uint64_t send_timestamp )
                                     /* in milliseconds */
 {
-    if (first_time == uint64_t(-1))
-        first_time = send_timestamp;
+  /* Default: take no action */
 
   if ( debug_ ) {
     cerr << "At time " << send_timestamp
@@ -58,21 +60,20 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t est_owt = (skewed_owt - skewed_lowest_owt) + est_lowest_owt;
 
     if (est_owt > 1.5 * est_lowest_owt)
-        curwindow -= .25;
-    else 
-        curwindow += .25;
+        the_window_size -= .25;
+    else
+        the_window_size += .25;
 
-    if (curwindow < 2)
-        curwindow = 2;
-    else if (curwindow > 100)
-        curwindow = 100;
+    if (the_window_size < 2)
+        the_window_size = 2;
+    else if (the_window_size > 100)
+        the_window_size = 100;
 
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
 	 << " (send @ time " << send_timestamp_acked
 	 << ", received @ time " << recv_timestamp_acked << " by receiver's clock)"
-    << " est_owt is! " << est_owt
 	 << endl;
   }
 }
@@ -81,5 +82,5 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 80; /* timeout of one second */
+  return 80;
 }
