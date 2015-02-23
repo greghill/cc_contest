@@ -10,13 +10,8 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  double ewma;
   unsigned int curwindow;
   int64_t lowest_owt;
-  bool got_greg;
-  unsigned int since_window_drop;
-  unsigned int window_drop_at;
-  bool freeze_window;
   uint64_t first_time;
   uint64_t consecutive_high_delay;
   uint64_t consecutive_low_delay;

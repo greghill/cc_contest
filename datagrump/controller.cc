@@ -11,6 +11,7 @@ Controller::Controller( const bool debug )
   : debug_( debug )
   , curwindow(80)
   , lowest_owt(99999)
+  , first_time(-1)
   , consecutive_high_delay(0)
   , consecutive_low_delay(4)
 {}
@@ -77,12 +78,11 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     else 
         consecutive_low_delay = 0;
 
-    since_window_drop++;
-
     if (curwindow < 8)
         curwindow = 8;
     else if (curwindow > 400)
         curwindow = 400;
+
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
