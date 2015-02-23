@@ -49,32 +49,11 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     if (owt < lowest_owt)
         lowest_owt = owt;
     int64_t est_owt = (20-lowest_owt) + owt;
-    if (est_owt > 33 )
-    {
-        if (consecutive_high_delay > 35)
-        {
-            //cerr << "too many, not decrementing" << endl;
-            //curwindow++;
-            consecutive_high_delay = 15;
-        }
-        else
-            curwindow--;
-        consecutive_high_delay++;
-    }
-    else
-        consecutive_high_delay=0;
 
-    if (est_owt < 30)
-    {
+    if (est_owt > 33 )
+        curwindow--;
+    else if (est_owt < 30)
         curwindow++;
-        if (consecutive_low_delay > 20)
-        {
-            curwindow++;
-        }
-        consecutive_low_delay++;
-    }
-    else 
-        consecutive_low_delay = 0;
 
     if (curwindow < 8)
         curwindow = 8;
