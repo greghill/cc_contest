@@ -12,6 +12,7 @@ private:
 
   unsigned int curwindow;
   int64_t lowest_owt;
+  int64_t lowest_rtt;
   uint64_t first_time;
   uint64_t consecutive_high_delay;
   uint64_t consecutive_low_delay;

@@ -9,6 +9,7 @@ Controller::Controller( const bool debug )
   : debug_( debug )
   , curwindow(80)
   , lowest_owt(99999)
+  , lowest_rtt(99999)
   , first_time(-1)
   , consecutive_high_delay(0)
   , consecutive_low_delay(4)
@@ -48,7 +49,12 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
     if (owt < lowest_owt)
         lowest_owt = owt;
-    int64_t est_owt = (20-lowest_owt) + owt;
+
+    int64_t rtt =  (int64_t) timestamp_ack_received - (int64_t) send_timestamp_acked;
+    if (rtt < lowest_rtt)
+        lowest_rtt = rtt;
+
+    int64_t est_owt = ((lowest_rtt/2)-lowest_owt) + owt;
 
     if (est_owt > 33 )
         curwindow--;
