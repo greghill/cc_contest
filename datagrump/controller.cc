@@ -32,7 +32,7 @@ unsigned int Controller::window_size( void )
     //int window = 110/ (pow(ewma, .7)-7);
 
 
-    return curwindow/6;
+    return curwindow/4;
 }
 
 void Controller::greg_recieved()
