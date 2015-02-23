@@ -9,14 +9,8 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , ewma(60)
   , curwindow(80)
   , lowest_owt(99999)
-  , got_greg(false)
-  , since_window_drop(0)
-  , window_drop_at(0)
-  , freeze_window(false)
-  , first_time(-1)
   , consecutive_high_delay(0)
   , consecutive_low_delay(4)
 {}
@@ -24,35 +18,7 @@ Controller::Controller( const bool debug )
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
-    /*
-    if (freeze_window) {
-        //        cerr << "window_frozen" << endl;
-        return 0;
-    }
-    */
-    //int window = 110/ (pow(ewma, .7)-7);
-
-
     return curwindow/4;
-}
-
-void Controller::greg_recieved()
-{
-    curwindow -= 4;
-    if (curwindow < 4)
-        curwindow = 4;
-    cerr << "got greg, moving to window " << curwindow/4 << endl;
-
-    /*
-    if (got_greg) {
- //       cerr << "unfrozen" << endl;
-        freeze_window = false;
-        //ewma = 50; // reset ewma on freeze event
-    } else {
-        freeze_window = true;
-        got_greg = true;
-    }
-    */
 }
 
 /* A datagram was sent */
@@ -63,8 +29,6 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
 {
     if (first_time == uint64_t(-1))
         first_time = send_timestamp;
-  /* Default: take no action */
-  //last_timestamp_sent = send_timestamp;
 
   if ( debug_ ) {
     cerr << "At time " << send_timestamp
@@ -82,77 +46,43 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-    //double time_from_start = double(send_timestamp_acked-first_time) / 1000;
     int64_t owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
     if (owt < lowest_owt)
         lowest_owt = owt;
-    double alpha = .2;
     int64_t est_owt = (20-lowest_owt) + owt;
-    //cerr << "est owt " <<  est_owt << endl;
-    ewma = alpha * est_owt + ((1-alpha) * ewma);
-    /*
-    if (est_owt > 100)
+    if (est_owt > 33 )
     {
-        // if since last window drop < something drop even more
-        since_window_drop = 0;
-        window_drop_at = curwindow;
-        //curwindow = (curwindow*.7)-10;
-        curwindow = curwindow - 3;
-        //cerr << "owt " << est_owt << " causes window drop from " << window_drop_at/8 << " to " << curwindow/8 << " at time " << time_from_start << endl;
-    }
-    */
-    /*
-    if (est_owt > 1000) {
-        curwindow = 16;
-        freeze_window = true;
-    }
-    */
-    if (!freeze_window)
-    {
-        if (est_owt > 33 )
+        if (consecutive_high_delay > 35)
         {
-            if (consecutive_high_delay > 35)
-            {
-                //cerr << "too many, not decrementing" << endl;
-                //curwindow++;
-                consecutive_high_delay = 15;
-            }
-            else
-                curwindow--;
-            consecutive_high_delay++;
+            //cerr << "too many, not decrementing" << endl;
+            //curwindow++;
+            consecutive_high_delay = 15;
         }
         else
-            consecutive_high_delay=0;
+            curwindow--;
+        consecutive_high_delay++;
+    }
+    else
+        consecutive_high_delay=0;
 
-        if (est_owt < 30)
+    if (est_owt < 30)
+    {
+        curwindow++;
+        if (consecutive_low_delay > 20)
         {
             curwindow++;
-            if (consecutive_low_delay > 20)
-            {
-                curwindow++;
-            }
-            consecutive_low_delay++;
-            /*
-               for (uint64_t i = 0; i < consecutive_low_delay; i++)
-               cerr << "|";
-               cerr << endl;
-             */
         }
-        else 
-            consecutive_low_delay = 0;
-
-        since_window_drop++;
-
-        if (curwindow < 8)
-            curwindow = 8;
-        else if (curwindow > 400)
-            curwindow = 400;
+        consecutive_low_delay++;
     }
-    /*
-    for (int i = 0; i < ewma-20; i++)
-        cerr << "|";
-    cerr << endl;
-    */
+    else 
+        consecutive_low_delay = 0;
+
+    since_window_drop++;
+
+    if (curwindow < 8)
+        curwindow = 8;
+    else if (curwindow > 400)
+        curwindow = 400;
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
