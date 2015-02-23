@@ -44,7 +44,6 @@ struct ContestMessage
   void transform_into_ack( const uint64_t sequence_number,
 			   const uint64_t recv_timestamp );
 
-  bool is_greg( void ) const;
   /* Is this message an ack? */
   bool is_ack( void ) const;
 };

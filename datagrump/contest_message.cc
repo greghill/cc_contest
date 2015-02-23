@@ -101,11 +101,6 @@ ContestMessage::Header::Header( const uint64_t s_sequence_number )
     ack_payload_length( -1 )
 {}
 
-bool ContestMessage::is_greg( void ) const
-{
-  return header.ack_sequence_number == uint64_t( -2 );
-}
-
 /* Is this message an ack? */
 bool ContestMessage::is_ack( void ) const
 {
