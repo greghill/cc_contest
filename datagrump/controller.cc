@@ -59,7 +59,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
     int64_t est_lowest_owt = (lowest_rtt/2);
     int64_t est_owt = (skewed_owt - skewed_lowest_owt) + est_lowest_owt;
 
-    if (est_owt > 1.5 * est_lowest_owt)
+    if (est_owt > 1.45 * est_lowest_owt)
         the_window_size -= .25;
     else
         the_window_size += .25;
