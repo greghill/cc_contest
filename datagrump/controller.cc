@@ -48,16 +48,16 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-    int64_t skewed_owt =  (int64_t) recv_timestamp_acked - (int64_t) send_timestamp_acked;
+    int64_t skewed_owt = recv_timestamp_acked - send_timestamp_acked;
     if (skewed_owt < skewed_lowest_owt)
         skewed_lowest_owt = skewed_owt;
 
-    int64_t rtt =  (int64_t) timestamp_ack_received - (int64_t) send_timestamp_acked;
+    double rtt =  timestamp_ack_received - send_timestamp_acked;
     if (rtt < lowest_rtt)
         lowest_rtt = rtt;
 
-    int64_t est_lowest_owt = (lowest_rtt/2);
-    int64_t est_owt = (skewed_owt - skewed_lowest_owt) + est_lowest_owt;
+    double est_lowest_owt = (lowest_rtt/2);
+    double est_owt = (skewed_owt - skewed_lowest_owt) + est_lowest_owt;
 
     if (est_owt > 1.45 * est_lowest_owt)
         the_window_size -= .25;
