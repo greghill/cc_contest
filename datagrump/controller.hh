@@ -10,7 +10,9 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  /* Add member variables here */
+  double the_window_size;
+  int64_t skewed_lowest_owt;
+  int64_t lowest_rtt;
 
 public:
   /* Public interface for the congestion controller */
